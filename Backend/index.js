@@ -12,12 +12,12 @@ const bagRoutes = require("./routes/bagRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const orderRoutes = require("./routes/orderRouter")
 
-require("dotenv").config();
+require('dotenv').config();
 connectDB();
 
 app.use(helmet());
-app.use(mongoSanitize());
-app.use(xss());
+// app.use(mongoSanitize());
+//app.use(xss());
 app.use(cors());
 app.use(express.json());
 const limiter = rateLimit({

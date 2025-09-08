@@ -2,8 +2,6 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const JWT_KEY = process.env.JWT_KEY;
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 
 exports.signup = async(req, res)=>{
     try{
@@ -54,8 +52,8 @@ exports.login = async (req, res) => {
             id: user._id,
             role: user.role        
             },
-            JWT_KEY,
-            {expiresIn: JWT_EXPIRES_IN}
+            process.env.JWT_KEY,
+            {expiresIn: process.env.JWT_EXPIRES_IN}
         );
 
         res.status(200).json({
