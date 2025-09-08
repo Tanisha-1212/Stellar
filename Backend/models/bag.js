@@ -35,7 +35,8 @@ const bagSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    cloudinary_id: { type: String }
 });
 
 module.exports = mongoose.model("Bag", bagSchema);
