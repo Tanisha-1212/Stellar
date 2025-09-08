@@ -1,6 +1,6 @@
 const Bag = require("../models/bag");
 const cloudinary = require("../config/cloudinary");
-
+const{ validationResult} = require("express-validator")
 
 
 //GET /api/bags -> fetch all basg (with optional category/ search)
@@ -60,53 +60,45 @@ exports.getBags = async(req, res) => {
 };
 
 //POST /api/bags -> add new bag(admin only)
-exports.addBag = async(req, res) => {
-
+exports.addBag = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
-  
 
-    try{
-        const {name, description, price, brand, category, stock} = req.body;
-        const bag = new Bag({
-            name,
-            description,
-            price,
-            brand,
-            category,
-            stock
-        });
+    try {
+        const { name, description, price, brand, category, stock } = req.body;
+
+        // create bag (saved already)
+        let bag = await Bag.create({ name, description, price, brand, category, stock });
 
         if (req.file) {
             try {
-                // Wrap cloudinary upload_stream in a promise
                 const result = await new Promise((resolve, reject) => {
-                const stream = cloudinary.uploader.upload_stream(
-                    { folder: "bags" },
-                    (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
-                    }
-                );
-                stream.end(req.file.buffer); // send the buffer
+                    const stream = cloudinary.uploader.upload_stream(
+                        { folder: "bags" },
+                        (error, result) => {
+                            if (error) reject(error);
+                            else resolve(result);
+                        }
+                    );
+                    stream.end(req.file.buffer);
                 });
 
                 bag.imageUrl = result.secure_url;
-                bag.cloudinary_id = result.public_id; // store for future deletion
+                bag.cloudinary_id = result.public_id;
+                await bag.save(); // only save if image added
             } catch (error) {
                 return res.status(500).json({ message: error.message });
             }
-}
+        }
 
-        // save regardless of whether image exists
-        const savedBag = await bag.save();
-        res.status(201).json(savedBag);
-    } catch(err){
-        res.status(500).json({message: "Server error", error: err.message})
+        res.status(201).json(bag);
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
     }
 };
+
 
 //PUT /api/bags/:id -> edit bag(admin only)
 exports.editBag = async (req, res) =>{
