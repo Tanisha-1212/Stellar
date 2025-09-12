@@ -63,3 +63,25 @@ exports.getOrders = async (req, res) => {
   }
 };
 
+
+exports.cancelOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find order
+    const order = await Order.findOne({ _id: id, user: req.user._id });
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // Check if already completed
+    if (order.status === "completed") {
+      return res.status(400).json({ message: "Cannot cancel completed order" });
+    }
+
+    order.status = "cancelled";
+    await order.save();
+
+    res.status(200).json({ message: "Order cancelled successfully", order });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};

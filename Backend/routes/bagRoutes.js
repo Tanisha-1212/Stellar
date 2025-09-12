@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../utils/multer");
 const {body} = require("express-validator");
-const {getBags, addBag, editBag, deleteBag} = require("../controller/bagcontroller");
+const {getBags, addBag, editBag, deleteBag, getBagById} = require("../controller/bagcontroller");
 const{isLoggedIn, isAdmin} = require("../middleware/authMiddleware");
 
 
@@ -13,6 +13,8 @@ const bagValidationRules = [
 ];
 
 router.get("/", getBags);
+
+router.get("/:id", getBagById);
 
 router.post("/", isLoggedIn, isAdmin, upload.single("image"), bagValidationRules, addBag);
 
