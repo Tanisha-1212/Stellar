@@ -10,7 +10,12 @@ const authRoutes = require("./routes/authRoutes");
 const {isLoggedIn, isAdmin} = require("./middleware/authMiddleware");
 const bagRoutes = require("./routes/bagRoutes");
 const cartRoutes = require("./routes/cartRoutes");
-const orderRoutes = require("./routes/orderRouter")
+const orderRoutes = require("./routes/orderRouter");
+const userRoutes = require("./routes/userRoutes")
+const adminRoutes = require("./routes/adminRoutes");
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
 
 require('dotenv').config();
 connectDB();
@@ -18,7 +23,7 @@ connectDB();
 app.use(helmet());
 // app.use(mongoSanitize());
 //app.use(xss());
-app.use(cors());
+app.use(cors({origin: "http://localhost:5173", credentials: true}));
 app.use(express.json());
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -35,6 +40,10 @@ app.use("/api/bags", bagRoutes);
 app.use("/api/cart", cartRoutes);
 
 app.use("/api/orders", orderRoutes);
+
+app.use("/api/user", userRoutes);
+
+app.use("/api/admin", adminRoutes);
 
 // Error handling for unmatched routes
 app.use((req, res) => {
